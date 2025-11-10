@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard</title>
+  <style>
+    body {
+      font-family: "Poppins", sans-serif;
+      background: #f9fafb;
+      color: #111827;
+      margin: 0;
+      padding: 40px;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 40px;
+    }
+
+    h1 {
+      font-size: 28px;
+      color: #1f2937;
+    }
+
+    a.logout {
+      background: #ef4444;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 500;
+      transition: background 0.3s ease;
+    }
+
+    a.logout:hover {
+      background: #dc2626;
+    }
+
+    h2 {
+      margin-top: 40px;
+      font-size: 22px;
+      color: #2563eb;
+      border-bottom: 2px solid #e5e7eb;
+      padding-bottom: 6px;
+    }
+
+    .stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    .box {
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 20px;
+      width: 200px;
+      text-align: center;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .box:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+    }
+
+    .box h3 {
+      color: #6b7280;
+      margin-bottom: 8px;
+    }
+
+    .box p {
+      font-size: 22px;
+      font-weight: bold;
+      color: #2563eb;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      background: #ffffff;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    }
+
+    th, td {
+      padding: 14px 12px;
+      border-bottom: 1px solid #e5e7eb;
+      text-align: left;
+    }
+
+    th {
+      background-color: #f3f4f6;
+      text-transform: uppercase;
+      font-size: 13px;
+      letter-spacing: 0.5px;
+      color: #374151;
+    }
+
+    tr:hover {
+      background-color: #f9fafb;
+    }
+
+    button {
+      background: #2563eb;
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background 0.3s ease, transform 0.2s ease;
+    }
+
+    button:hover {
+      background: #1d4ed8;
+      transform: scale(1.05);
+    }
+
+    button.delete {
+      background: #f3f4f6;
+      color: #111827;
+      border: 1px solid #d1d5db;
+    }
+
+    button.delete:hover {
+      background: #e5e7eb;
+    }
+
+    .status-approved {
+      color: #16a34a;
+    }
+
+    .status-pending {
+      color: #d97706;
+    }
+
+    .no-comments {
+      text-align: center;
+      padding: 20px;
+      color: #6b7280;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Welcome, <%= admin.username %> 👋</h1>
+    <a href="/admin/logout" class="logout">Logout</a>
+  </header>
+
+  <h2>📊 Statistics</h2>
+  <div class="stats">
+    <div class="box">
+      <h3>Video Views</h3>
+      <p><%= videoViews %></p>
+    </div>
+    <div class="box">
+      <h3>Video Downloads</h3>
+      <p><%= videoDownloads %></p>
+    </div>
+    <div class="box">
+      <h3>App Downloads</h3>
+      <p><%= appDownloads %></p>
+    </div>
+    <div class="box">
+      <h3>Visits Today</h3>
+      <p><%= todayVisits %></p>
+    </div>
+    <div class="box">
+      <h3>This Week</h3>
+      <p><%= weekVisits %></p>
+    </div>
+    <div class="box">
+      <h3>This Month</h3>
+      <p><%= monthVisits %></p>
+    </div>
+  </div>
+
+  <h2>💬 Comments (<%= totalComments %>)</h2>
+  <p>Approved: <span class="status-approved"><%= approvedComments %></span> | Pending: <span class="status-pending"><%= pendingComments %></span></p>
+
+  <table>
+    <tr>
+      <th>Name</th>
+      <th>Comment</th>
+      <th>Status</th>
+      <th>Actions</th>
+    </tr>
+    <% if (comments && comments.length > 0) { %>
+      <% comments.forEach(c => { %>
+        <tr>
+          <td><%= c.name %></td>
+          <td><%= c.text %></td>
+          <td class="<%= c.approved ? 'status-approved' : 'status-pending' %>">
+            <%= c.approved ? "✅ Approved" : "⏳ Pending" %>
+          </td>
+          <td>
+            <% if (!c.approved) { %>
+              <form action="/admin/comment/approve/<%= c._id %>" method="POST" style="display:inline;">
+                <button type="submit">Approve</button>
+              </form>
+            <% } %>
+            <form action="/admin/comment/delete/<%= c._id %>" method="POST" style="display:inline;">
+              <button type="submit" class="delete">Delete</button>
+            </form>
+          </td>
+        </tr>
+      <% }) %>
+    <% } else { %>
+      <tr><td colspan="4" class="no-comments">No comments yet</td></tr>
+    <% } %>
+  </table>
+</body>
+</html>

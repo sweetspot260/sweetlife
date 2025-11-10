@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin Dashboard</title>
+</head>
+<body>
+  <h1>Welcome, <%= admin.username %></h1>
+  <a href="/admin/logout">Logout</a>
+
+  <h2>All Comments</h2>
+  <table border="1">
+    <tr>
+      <th>Name</th>
+      <th>Comment</th>
+      <th>Status</th>
+      <th>Actions</th>
+    </tr>
+    <% comments.forEach(c => { %>
+      <tr>
+        <td><%= c.name %></td>
+        <td><%= c.comment %></td>
+        <td><%= c.approved ? 'Approved' : 'Pending' %></td>
+        <td>
+          <% if (!c.approved) { %>
+            <form method="POST" action="/admin/approve/<%= c._id %>" style="display:inline;">
+              <button>Approve</button>
+            </form>
+            <form method="POST" action="/admin/reject/<%= c._id %>" style="display:inline;">
+              <button>Reject</button>
+            </form>
+          <% } %>
+        </td>
+      </tr>
+    <% }) %>
+  </table>
+</body>
+</html>
