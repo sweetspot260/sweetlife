@@ -3,6 +3,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const session = require('express-session');
 const cors = require('cors');
+const axios = require("axios");
 const path = require('path');
 
 const app = express();
@@ -47,5 +48,18 @@ app.use('/admin', require('./routes/admin'));
 app.get('/ping', (req, res) => {
     res.send('ping pong');
 })
+
+
+
+if (process.env.RENDER) {
+  setInterval(() => {
+    axios
+      .get("https://sweetlife-yrl9.onrender.com/ping") // <-- your live Render URL
+      .then(() => console.log("🔁 Pinged self to stay awake"))
+      .catch(err => console.error("Ping failed:", err.message));
+  }, 5 * 60 * 1000); // every 5 minutes
+}
+
+
 // Start server
 app.listen(process.env.PORT, () => console.log(`🚀 Server running on port ${process.env.PORT}`));
